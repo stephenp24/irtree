@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 @contextlib.contextmanager
 def instance_validator(instance: Any, instance_type: Type):
     if not isinstance(instance, instance_type):
-        raise TypeError(f"Invalid instance type: {instance!s} {instance_type}")
+        raise TypeError(f"Invalid type: {instance!s}\nExpected: {instance_type}")
     try:
         yield
     finally:

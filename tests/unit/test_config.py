@@ -51,9 +51,8 @@ def sample_node0() -> _N:
 
     for node in walk(a0):
         if node.has_data:
-            prefix = f"{node.get_parent()!s}/" if node.get_parent() else ""
             item = BaseDataItem(
-                author=f"{prefix}{node!s}",
+                author=f"{node.path} ({node.has_data})",
                 sum_weight=node.get_sum_weight(),
             )
             node.add_data_item(item)
@@ -116,7 +115,7 @@ def test_add_child_sorted_simple():
     )
 
     # ASSERT: children should be sorted based on weight
-    node.as_graph()
+    node.render()
     assert node.get_children() == expected_result
 
     node.add_child(child_node1)
@@ -125,7 +124,7 @@ def test_add_child_sorted_simple():
     node.add_child(child_node6)
 
     # ASSERT: children should avoid duplicates
-    node.as_graph()
+    node.render()
     assert node.get_children() == expected_result
 
 
@@ -168,7 +167,7 @@ def test_add_child_sorted_complex():
     )
 
     # ASSERT: same weight should be sorted and inserted after the first occurences
-    node.as_graph()
+    node.render()
     assert node.get_children() == expected_result
 
 
@@ -180,7 +179,7 @@ def test_add_child_unsafe():
     expected_result = deque(children)
 
     # ASSERT: same weight should be sorted and inserted after the first occurences
-    node.as_graph()
+    node.render()
     assert node.get_children() == expected_result
 
 
@@ -192,8 +191,8 @@ def test_add_child_error():
         node.add_child(mock.ANY)
 
 
-def test_as_graph(sample_node0: _N):
-    sample_node0.as_graph()
+def test_render(sample_node0: _N):
+    sample_node0.render()
 
     assert True
 
@@ -201,17 +200,17 @@ def test_as_graph(sample_node0: _N):
 def test_get_configs(sample_node0: _N):
     configs = sample_node0.get_configs()
     expected_result = [
-        BaseDataItem(sum_weight=0, author="a0 (0) (True)"),
-        BaseDataItem(sum_weight=1, author="a0 (0) (True)/b1 (1) (True)"),
-        BaseDataItem(sum_weight=2, author="a0 (0) (True)/c0 (2) (True)"),
-        BaseDataItem(sum_weight=3, author="b0 (1) (False)/c0 (2) (True)"),
-        BaseDataItem(sum_weight=3, author="b1 (1) (True)/c0 (2) (True)"),
-        BaseDataItem(sum_weight=3, author="a0 (0) (True)/d0 (3) (True)"),
-        BaseDataItem(sum_weight=4, author="b1 (1) (True)/d0 (3) (True)"),
-        BaseDataItem(sum_weight=5, author="c0 (2) (True)/d0 (3) (True)"),
-        BaseDataItem(sum_weight=6, author="c1 (2) (False)/e2 (4) (True)"),
+        BaseDataItem(sum_weight=0, author="/a0 (True)"),
+        BaseDataItem(sum_weight=1, author="/a0/b1 (True)"),
+        BaseDataItem(sum_weight=2, author="/a0/c0 (True)"),
+        BaseDataItem(sum_weight=3, author="/a0/b0/c0 (True)"),
+        BaseDataItem(sum_weight=3, author="/a0/b1/c0 (True)"),
+        BaseDataItem(sum_weight=3, author="/a0/d0 (True)"),
+        BaseDataItem(sum_weight=4, author="/a0/b1/d0 (True)"),
+        BaseDataItem(sum_weight=5, author="/a0/c0/d0 (True)"),
+        BaseDataItem(sum_weight=6, author="/a0/c1/e2 (True)"),
     ]
-    print(sample_node0.as_graph())
+    print(sample_node0.render())
 
     assert list(configs) == expected_result
 
@@ -226,7 +225,7 @@ def test_get_resolved_config(sample_node0: _N):
         ]
     )
     config = sample_node0.get_resolved_config(query=query)
-    expected_result = BaseDataItem(sum_weight=6, author="c1 (2) (False)/e2 (4) (True)")
+    expected_result = BaseDataItem(sum_weight=6, author="/a0/c1/e2 (True)")
     # ASSERT: resulting config item is correct
     assert config == expected_result
 
@@ -238,7 +237,7 @@ def test_get_resolved_config(sample_node0: _N):
         ]
     )
     config = sample_node0.get_resolved_config(query=query)
-    expected_result = BaseDataItem(sum_weight=4, author="b1 (1) (True)/d0 (3) (True)")
+    expected_result = BaseDataItem(sum_weight=4, author="/a0/b1/d0 (True)")
     # ASSERT: resulting config item is correct
     assert config == expected_result
 
@@ -254,9 +253,9 @@ def test_exact_query(sample_node0: _N):
     )
     configs = sample_node0.get_configs(query=query)
     expected_results = [
-        BaseDataItem(sum_weight=0, author="a0 (0) (True)"),
-        BaseDataItem(sum_weight=1, author="a0 (0) (True)/b1 (1) (True)"),
-        BaseDataItem(sum_weight=6, author="c1 (2) (False)/e2 (4) (True)"),
+        BaseDataItem(sum_weight=0, author="/a0 (True)"),
+        BaseDataItem(sum_weight=1, author="/a0/b1 (True)"),
+        BaseDataItem(sum_weight=6, author="/a0/c1/e2 (True)"),
     ]
 
     # ASSERT: resulting config items is correct
@@ -271,10 +270,10 @@ def test_exact_query(sample_node0: _N):
     )
     configs = sample_node0.get_configs(query=query)
     expected_results = [
-        BaseDataItem(sum_weight=0, author="a0 (0) (True)"),
-        BaseDataItem(sum_weight=1, author="a0 (0) (True)/b1 (1) (True)"),
-        BaseDataItem(sum_weight=3, author="a0 (0) (True)/d0 (3) (True)"),
-        BaseDataItem(sum_weight=4, author="b1 (1) (True)/d0 (3) (True)"),
+        BaseDataItem(sum_weight=0, author="/a0 (True)"),
+        BaseDataItem(sum_weight=1, author="/a0/b1 (True)"),
+        BaseDataItem(sum_weight=3, author="/a0/d0 (True)"),
+        BaseDataItem(sum_weight=4, author="/a0/b1/d0 (True)"),
     ]
 
     # ASSERT: resulting config items is correct
@@ -286,8 +285,8 @@ def test_exact_query_from_node_path(sample_node0: _N):
     configs = sample_node0.get_configs(query=query)
 
     expected_results = [
-        BaseDataItem(sum_weight=0, author="a0 (0) (True)"),
-        BaseDataItem(sum_weight=1, author="a0 (0) (True)/b1 (1) (True)"),
+        BaseDataItem(sum_weight=0, author="/a0 (True)"),
+        BaseDataItem(sum_weight=1, author="/a0/b1 (True)"),
     ]
 
     # ASSERT: resulting config items is correct
@@ -299,11 +298,11 @@ def test_regex_query_from_node_path(sample_node0: _N):
     configs = sample_node0.get_configs(query=query)
 
     expected_configs = [
-        BaseDataItem(sum_weight=0, author="a0 (0) (True)"),
-        BaseDataItem(sum_weight=1, author="a0 (0) (True)/b1 (1) (True)"),
-        BaseDataItem(sum_weight=2, author="a0 (0) (True)/c0 (2) (True)"),
-        BaseDataItem(sum_weight=3, author="b0 (1) (False)/c0 (2) (True)"),
-        BaseDataItem(sum_weight=3, author="b1 (1) (True)/c0 (2) (True)"),
+        BaseDataItem(sum_weight=0, author="/a0 (True)"),
+        BaseDataItem(sum_weight=1, author="/a0/b1 (True)"),
+        BaseDataItem(sum_weight=2, author="/a0/c0 (True)"),
+        BaseDataItem(sum_weight=3, author="/a0/b0/c0 (True)"),
+        BaseDataItem(sum_weight=3, author="/a0/b1/c0 (True)"),
     ]
 
     # ASSERT: resulting config items is correct
@@ -359,9 +358,9 @@ def test_create_from_path():
     e4.add_child(f5)
     f5.add_child(g6)
 
-    n.as_graph()
+    n.render()
 
-    a0.as_graph()
+    a0.render()
 
     assert n == g6
 
@@ -386,16 +385,22 @@ def test_add_data_item():
         190,
         12.0,
     )
-    n_0 = _N.create_from_path("/a0/b1")
-    n_0.add_data_item(item_0)
 
-    assert n_0.get_data_item() == item_0
+    n_0 = _N.create_from_path("/a0/b1")
+    assert n_0.has_data is False
+    n_0.data_item = item_0
+
+    assert n_0.has_data is True
+    assert n_0.data_item == item_0
 
     item_1 = TestItem("item_1", key_5={"item_1", 191, 12.1})
     n_1 = _N.create_from_path("/a0/b1/c2/d3")
-    n_1.add_data_item(item_1)
+    # assert n_1.has_data is False
 
-    assert n_1.get_data_item() == item_1
+    n_1.data_item = item_1
+
+    # assert n_1.has_data is True
+    assert n_1.data_item == item_1
 
     item_2 = TestItem(
         key_4=["item_2", 191, 12.1],
@@ -403,6 +408,29 @@ def test_add_data_item():
         key_6={"date": "19-12-2019"},
     )
     n_2 = _N.create_from_path("/a0/b1/c2/d3/e4/f5/g6")
-    n_2.add_data_item(item_2)
+    # assert n_2.has_data is False
+    n_2.data_item = item_2
 
-    assert n_2.get_data_item() == item_2
+    # assert n_2.has_data is True
+    assert n_2.data_item == item_2
+
+    # n_0 = _N.create_from_path("/a0/b1")
+    # n_0.add_data_item(item_0)
+
+    # assert n_0.get_data_item() == item_0
+
+    # item_1 = TestItem("item_1", key_5={"item_1", 191, 12.1})
+    # n_1 = _N.create_from_path("/a0/b1/c2/d3")
+    # n_1.add_data_item(item_1)
+
+    # assert n_1.get_data_item() == item_1
+
+    # item_2 = TestItem(
+    #     key_4=["item_2", 191, 12.1],
+    #     key_5={19, 12, 2019},
+    #     key_6={"date": "19-12-2019"},
+    # )
+    # n_2 = _N.create_from_path("/a0/b1/c2/d3/e4/f5/g6")
+    # n_2.add_data_item(item_2)
+
+    # assert n_2.get_data_item() == item_2

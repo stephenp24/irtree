@@ -3,10 +3,11 @@ Time complexity: O(n log n)
 """
 from __future__ import annotations
 
+import weakref
 from abc import ABC, abstractmethod
 from collections import deque
 from copy import copy
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, astuple
 from itertools import groupby
 from typing import TYPE_CHECKING, Any, Deque, Dict, Generator, List, Optional, Set, cast
 
@@ -29,7 +30,57 @@ class BaseDataItem:
     dict = asdict
 
     def valid(self):
-        return any(vars(self).values())
+        return any(astuple(self))
+
+
+class DataItemDescriptor:
+
+    # https://docs.python.org/3/whatsnew/3.6.html
+    # https://www.python.org/dev/peps/pep-0487/
+    def __set_name__(self, owner, name):
+        self._name = name
+
+    def __get__(self, obj, type):
+        """
+        Args:
+            obj: The instance of the object your descriptor is attached to.
+            type: The type of the object the descriptor is attached to.
+        """
+        if obj:
+            return obj.__dict__.get(self._name) or None
+        return None
+
+    def __set__(self, obj, value: BaseDataItem):
+        if value is None:
+            obj.__dict__[self._name] = value
+        else:
+            with instance_validator(value, BaseDataItem):
+                if value.valid():
+                    obj.__dict__[self._name] = value
+
+
+class ParentDescriptor:
+    """ Use weakref to avoid memory leaks when child references the parent so 
+    that on references reset, together with the root deletes all descendants 
+    cascading. """
+
+    def __set_name__(self, owner, name):
+        self._name = name
+
+    def __get__(self, obj, type):
+        """ """
+        if obj:
+            parent = obj.__dict__.get(self._name)
+            if parent:
+                return parent()
+        return None
+
+    def __set__(self, obj, value):
+        if value is None:
+            obj.__dict__[self._name] = None
+        else:
+            with instance_validator(value, BaseNode):
+                obj.__dict__[self._name] = weakref.ref(value)
 
 
 # As per docs:
@@ -42,22 +93,33 @@ class BaseDataItem:
 #
 @dataclass(unsafe_hash=False, eq=False)
 class BaseNode:
-    name: str = ""
-    has_data: bool = False
-    weight: int = 0
+    """ Node must have at least a name and weight """
+    name: str
+    weight: int
     location: Optional[str] = None
-    __path: str = ""
-    __parent: Optional[BaseNode] = None
+    data_item: DataItemDescriptor = DataItemDescriptor()
+    parent: ParentDescriptor = ParentDescriptor()
     __children: Deque[BaseNode] = field(default_factory=deque)
-    __data_item: Optional[BaseDataItem] = None
+
+    def __post_init__(self):
+        """ dataclass """
+        self.__update_path()
 
     # --- Custom member access ---
     @property
+    def has_data(self) -> bool:
+        return self.data_item is not None
+    
+    @property
     def path(self) -> str:
-        """ """
-        return self.__path
+        """ Get the node path. This is a read-only """
+        return f"{self.__parent.path if self.__parent else ''}/{self.name}"
 
-    def get_children(self) -> Deque[BaseNode]:
+    def __update_path(self):
+        """ """
+        self.__path = f"{self.__parent.path if self.__parent else ''}/{self.name}"
+
+    # def get_children(self) -> Deque[BaseNode]:
         """ Get the children sorted based on its weight. 
         
         .. important:: this returns a copy of this node's children. To 
@@ -66,7 +128,6 @@ class BaseNode:
         """
         return self.__children.copy()
 
-    @profile
     def add_child(self, child: BaseNode, safe: bool = True):
         """ Set the given node as this instance's child.
         
@@ -144,45 +205,31 @@ class BaseNode:
                         _LOGGER.debug("\tAdding last child")
                         _add_last_child(child)
                     else:
-                        # Steps:
+                        # Steps to add middle child:
                         # 1. Find the next heavier child
                         # 2. Insert the new child on the heavier child index
-                        _LOGGER.debug("\tAdding mid child")
+                        _LOGGER.debug("\tAdding middle child")
                         mid_child_index = _get_mid_child_index(child)
                         _LOGGER.debug(f"\tMid child index: {mid_child_index}")
                         _add_mid_child(child, mid_child_index)
         
         # Ensure the new child's parent points to this node.
         child.__parent = self
+        child.__update_path()
 
-    @profile
     def remove_child(self, child: BaseNode):
         """ Remove the given node from this instance's list of children. """
         if child in self.__children:
             self.__children.remove(child)
 
-    def get_parent(self) -> Optional[BaseNode]:
-        return self.__parent
+    # def get_parent(self) -> Optional[BaseNode]:
+    #     return self.__parent
 
-    def set_parent(self, parent: BaseNode):
+    # def set_parent(self, parent: BaseNode):
         with instance_validator(parent, self.__class__):
             parent.add_child(self)
 
         return
-
-    def get_data_item(self) -> Optional[BaseDataItem]:
-        """Return a copy of the data item"""
-        if self.has_data:
-            return copy(self.__data_item)
-
-        return None
-
-    def add_data_item(self, data_item: BaseDataItem):
-        """Add the data item"""
-        with instance_validator(data_item, BaseDataItem):
-            self.__data_item = copy(data_item)
-            if self.__data_item.valid():
-                self.has_data = True
 
     def get_root(self) -> BaseNode:
         """ """
@@ -220,8 +267,7 @@ class BaseNode:
         """load and populate all child"""
         raise NotImplementedError
 
-    @profile
-    def as_graph(self) -> None:
+    def render(self) -> None:
         """ """
         parent = self.get_parent()
         prefix = (parent.weight + 1) * " " if parent else ""
@@ -230,7 +276,7 @@ class BaseNode:
 
         children = self.get_children()
         while children:
-            cast(BaseNode, children.popleft()).as_graph()
+            children.popleft().render()
 
     def get_sum_weight(self) -> int:
         """ """
@@ -241,7 +287,6 @@ class BaseNode:
         )
         return self.weight + parent_weight
 
-    @profile
     def get_all_data(self, query: Optional[BaseQuery] = None) -> List[BaseDataItem]:
         """ """
         result = []
@@ -254,7 +299,7 @@ class BaseNode:
 
             children = self.get_children()
             while children:
-                result += cast(BaseNode, children.popleft()).get_all_data(query=query)
+                result += children.popleft().get_all_data(query=query)
 
             result = sorted(result, key=lambda item: item.sum_weight)
 
@@ -263,7 +308,6 @@ class BaseNode:
     # --- constructor ---
 
     @classmethod
-    @profile
     def create_from_path(cls, node_path: str) -> BaseNode:
         """Create node from the given unix-like path. The resulting node are the child-most node.
         e.g: "/foo/bar/baz" will return the "baz" node with parent pointing to the "bar" node.
@@ -295,7 +339,6 @@ class ConfigNode(BaseNode):
             sum_weight=self.get_sum_weight(),
         )
 
-    @profile
     def get_configs(
         self, query: Optional[BaseQuery] = None
     ) -> Generator[BaseDataItem, None, None]:
@@ -303,7 +346,6 @@ class ConfigNode(BaseNode):
         for data in self.get_all_data(query=query):
             yield data
 
-    @profile
     def get_resolved_config(self, query: Optional[BaseQuery] = None) -> BaseDataItem:
         """ """
         return get_resolved_item(items=self.get_configs(query=query))
@@ -314,5 +356,5 @@ def walk(node: BaseNode) -> Generator:
     yield node
     children = node.get_children()
     while children:
-        for child in walk(cast(BaseNode, children.popleft())):
+        for child in walk(children.popleft()):
             yield child
