@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-__all__ = ["Component", "BaseQuery", "ExactQuery", "RegexQuery"]
+__all__ = ["QueryItem", "Query", "ReQuery", "get_query_items_from_path"]
 
 import re
 from abc import abstractmethod
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, List
+from dataclasses import dataclass, field, asdict
+from typing import TYPE_CHECKING, List, Optional
 
 from ._logger import get_logger
-from ._utils import split_node_path
 
 if TYPE_CHECKING:
     from .config import BaseNode
@@ -16,51 +15,56 @@ if TYPE_CHECKING:
 _LOGGER = get_logger(__name__)
 
 
-@dataclass(unsafe_hash=True, frozen=True, repr=False)
-class Component:
-    weight: int = 0
-    value: str = ""
-
-    def __repr__(self):
-        return f"C({self.weight}, {self.value})"
-
-
-@dataclass
-class BaseQuery:
-    components: List[Component] = field(default_factory=list)
-
-    @abstractmethod
-    def match(self, node: BaseNode):
-        """ """
-        raise NotImplementedError()
+@dataclass(unsafe_hash=True, frozen=True)
+class QueryItem:
+    name: str = ""
+    weight: Optional[int] = None
+    path: str = ""
+    has_data: bool = False
 
     @classmethod
-    def from_node_path(cls, node_path: str) -> BaseQuery:
+    def from_node(cls, node: BaseNode) -> QueryItem:
         """ """
-        return cls([Component(k, v) for k, v in split_node_path(node_path).items()])
+        return cls(
+            name=node.name, 
+            weight=node.weight, 
+            path=node.path, 
+            has_data=node.has_data
+        )
+
+
+def get_query_items_from_path(node_path: str) -> List[QueryItem]:
+    """ """
+    return [QueryItem(name=v, weight=k) for k, v in enumerate(filter(None, node_path.split("/")))]
 
 
 @dataclass
-class ExactQuery(BaseQuery):
-    def match(self, node: BaseNode):
-        _LOGGER.info(f"exact matching: {self.components} {node!s}")
+class Query:
+    items: List[QueryItem] = field(default_factory=list)
 
-        for c in self.components:
-            if node.weight == c.weight and node.name == c.value:
-                _LOGGER.debug(f"match: {c.value} == {node.name}")
+    def match(self, node: BaseNode):
+        _LOGGER.info(f"exact matching: {self.items} {node!s}")
+
+        node_dict = asdict(node)
+        _FILTER_EXPR = lambda item: item[-1] and node_dict[item[0]] != item[-1]
+
+        for item in self.items:
+            item_dict = dict(filter(_FILTER_EXPR, asdict(item).items()))
+            if not item_dict:
+                _LOGGER.debug(f"match: {item} == {node!s}")
                 return True
 
         return False
 
 
 @dataclass
-class RegexQuery(BaseQuery):
+class ReQuery(Query):
     def match(self, node: BaseNode):
-        _LOGGER.info(f"regex matching: {self.components} {node!s}")
+        _LOGGER.info(f"regex matching: {self.items} {node!s}")
 
-        for c in self.components:
-            if node.weight == c.weight and re.match(c.value, node.name):
-                _LOGGER.debug(f"match: {c.value} == {node.name}")
+        for c in self.items:
+            if node.weight == c.weight and re.match(c.name, node.name):
+                _LOGGER.debug(f"match: {c.name} == {node.name}")
                 return True
 
         return False
