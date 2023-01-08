@@ -2,7 +2,7 @@
 
 ## Searching 
 
-There are two searching model that `sconfig` provide:
+There are two searching model that `irtree` provide:
 - `iter`, will traverse through the whole tree (DFS), this will ensure all the nodes 
   are hit and return a python `generator`.
 - `get_contributing_nodes`, similar to `iter` except this will skip the whole sub-graph if 
@@ -53,7 +53,7 @@ node_with_data_items = list(
 
 ## Resolving
 
-A more interesting topic is the main usage of `sconfig`, that is to get all contributing 
+A more interesting topic is the main usage of `irtree`, that is to get all contributing 
 nodes from a `path hierarchy`.
 
 > **_NOTE:_** Path hierarchy refers to all the nodes that contributes in the path, this 
@@ -135,7 +135,7 @@ There are three data structure candidates to store the node children (see `BaseN
 The first one is to use python `list`, with the advantage of fast mid-index access and secondly 
 is to use `deque` (there might be more) with the benefits of O(1) access on either end of the queue.
 
-`sconfig` end up using `deque` because we found that the use case where one need to peek the child 
+`irtree` end up using `deque` because we found that the use case where one need to peek the child 
 at certain index should be rare enough.
 
 > Note that I'm not too concerned over the performance as much, if speed really ended up became the main 
@@ -353,7 +353,7 @@ Following are the three possible implementation:
   del root
   ```
 
-The behaviour what `sconfig` chose is that `parent` as weakref because its deemed to be 
+The behaviour what `irtree` chose is that `parent` as weakref because its deemed to be 
 the safest and behaves the most logical. That is whenever a parent object is deleted all 
 unbound child (that is not a parent of other node) will also be garbage-collected.
 

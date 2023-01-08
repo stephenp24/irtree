@@ -1,2 +1,2 @@
-from . import config
+from . import node
 from ._utils import *

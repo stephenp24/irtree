@@ -3,8 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import List
 
-from sconfig.config import RENDER_MODE, BaseDataItem, ContextualNode, load_json
-from sconfig.query import Query, QueryItem
+from irtree.node import RENDER_MODE, BaseDataItem, ContextualNode, load_json
+from irtree.query import Query, QueryItem
 
 
 @dataclass(eq=False)

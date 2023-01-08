@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "sconfig"
+name = "irtree"
 version = "0.1.0"
 description = "Complex data inheritance made easy"
 authors = ["stephenp24 <putra.stephen@gmail.com>"]
 readme = "README.md"
-packages = [{include = "sconfig", from = "python"}]
+packages = [{include = "irtree", from = "python"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"

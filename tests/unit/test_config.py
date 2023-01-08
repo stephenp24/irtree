@@ -4,14 +4,14 @@ from typing import Any, Dict, List
 import mock
 import pytest
 
-from sconfig.config import (
+from irtree.node import (
     RENDER_MODE,
     BaseDataItem,
     ContextualNode,
     get_resolved_data_item,
     load_json,
 )
-from sconfig.query import Query, QueryItem, ReQuery
+from irtree.query import Query, QueryItem, ReQuery
 
 
 @pytest.fixture
@@ -253,27 +253,27 @@ def test_render(node_with_data_items: ContextualNode):
 
     # ASSERT: render to json as expected
     json_render = {
-        "__kls_name__": "sconfig.config.ContextualNode",
+        "__kls_name__": "irtree.node.ContextualNode",
         "name": "a0",
         "weight": 0,
         "data_item": {
-            "__kls_name__": "sconfig.config.BaseDataItem",
+            "__kls_name__": "irtree.node.BaseDataItem",
             "author": "/a0 (True)",
             "total_weight": 0,
         },
         "children": [
             {
-                "__kls_name__": "sconfig.config.ContextualNode",
+                "__kls_name__": "irtree.node.ContextualNode",
                 "name": "b0",
                 "weight": 1,
                 "data_item": None,
                 "children": [
                     {
-                        "__kls_name__": "sconfig.config.ContextualNode",
+                        "__kls_name__": "irtree.node.ContextualNode",
                         "name": "c0",
                         "weight": 2,
                         "data_item": {
-                            "__kls_name__": "sconfig.config.BaseDataItem",
+                            "__kls_name__": "irtree.node.BaseDataItem",
                             "author": "/a0/b0/c0 (True)",
                             "total_weight": 3,
                         },
@@ -282,32 +282,32 @@ def test_render(node_with_data_items: ContextualNode):
                 ],
             },
             {
-                "__kls_name__": "sconfig.config.ContextualNode",
+                "__kls_name__": "irtree.node.ContextualNode",
                 "name": "b1",
                 "weight": 1,
                 "data_item": {
-                    "__kls_name__": "sconfig.config.BaseDataItem",
+                    "__kls_name__": "irtree.node.BaseDataItem",
                     "author": "/a0/b1 (True)",
                     "total_weight": 1,
                 },
                 "children": [
                     {
-                        "__kls_name__": "sconfig.config.ContextualNode",
+                        "__kls_name__": "irtree.node.ContextualNode",
                         "name": "c0",
                         "weight": 2,
                         "data_item": {
-                            "__kls_name__": "sconfig.config.BaseDataItem",
+                            "__kls_name__": "irtree.node.BaseDataItem",
                             "author": "/a0/b1/c0 (True)",
                             "total_weight": 3,
                         },
                         "children": [],
                     },
                     {
-                        "__kls_name__": "sconfig.config.ContextualNode",
+                        "__kls_name__": "irtree.node.ContextualNode",
                         "name": "d0",
                         "weight": 3,
                         "data_item": {
-                            "__kls_name__": "sconfig.config.BaseDataItem",
+                            "__kls_name__": "irtree.node.BaseDataItem",
                             "author": "/a0/b1/d0 (True)",
                             "total_weight": 4,
                         },
@@ -316,21 +316,21 @@ def test_render(node_with_data_items: ContextualNode):
                 ],
             },
             {
-                "__kls_name__": "sconfig.config.ContextualNode",
+                "__kls_name__": "irtree.node.ContextualNode",
                 "name": "c0",
                 "weight": 2,
                 "data_item": {
-                    "__kls_name__": "sconfig.config.BaseDataItem",
+                    "__kls_name__": "irtree.node.BaseDataItem",
                     "author": "/a0/c0 (True)",
                     "total_weight": 2,
                 },
                 "children": [
                     {
-                        "__kls_name__": "sconfig.config.ContextualNode",
+                        "__kls_name__": "irtree.node.ContextualNode",
                         "name": "d0",
                         "weight": 3,
                         "data_item": {
-                            "__kls_name__": "sconfig.config.BaseDataItem",
+                            "__kls_name__": "irtree.node.BaseDataItem",
                             "author": "/a0/c0/d0 (True)",
                             "total_weight": 5,
                         },
@@ -339,17 +339,17 @@ def test_render(node_with_data_items: ContextualNode):
                 ],
             },
             {
-                "__kls_name__": "sconfig.config.ContextualNode",
+                "__kls_name__": "irtree.node.ContextualNode",
                 "name": "c1",
                 "weight": 2,
                 "data_item": None,
                 "children": [
                     {
-                        "__kls_name__": "sconfig.config.ContextualNode",
+                        "__kls_name__": "irtree.node.ContextualNode",
                         "name": "e2",
                         "weight": 4,
                         "data_item": {
-                            "__kls_name__": "sconfig.config.BaseDataItem",
+                            "__kls_name__": "irtree.node.BaseDataItem",
                             "author": "/a0/c1/e2 (True)",
                             "total_weight": 6,
                         },
@@ -358,11 +358,11 @@ def test_render(node_with_data_items: ContextualNode):
                 ],
             },
             {
-                "__kls_name__": "sconfig.config.ContextualNode",
+                "__kls_name__": "irtree.node.ContextualNode",
                 "name": "d0",
                 "weight": 3,
                 "data_item": {
-                    "__kls_name__": "sconfig.config.BaseDataItem",
+                    "__kls_name__": "irtree.node.BaseDataItem",
                     "author": "/a0/d0 (True)",
                     "total_weight": 3,
                 },

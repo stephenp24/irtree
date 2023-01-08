@@ -1,10 +1,10 @@
-# sconfig
+# irtree
 
-Welcome to `sconfig`, a library for easily resolving complex data inheritance written in Python.
+Welcome to `irtree`, a library for easily resolving complex data inheritance written in Python.
 
 ## Introduction
 
-Inheritance is a powerful feature that allows one set of data to inherit attributes from another set data. However, when dealing with complex inheritance hierarchies, it can be difficult to correctly resolve the inherited data. This is where `sconfig` comes in.
+Inheritance is a powerful feature that allows one set of data to inherit attributes from another set data. However, when dealing with complex inheritance hierarchies, it can be difficult to correctly resolve the inherited data. This is where `irtree` comes in.
 
 ## Features
 
@@ -24,11 +24,11 @@ Inheritance is a powerful feature that allows one set of data to inherit attribu
 
 - `git clone` this project
   
-  > git clone https://github.com/stephenp24/sconfig.git
+  > git clone https://github.com/stephenp24/irtree.git
 
-- `cd` to the sconfig dir
+- `cd` to the irtree dir
 
-  > cd sconfig
+  > cd irtree
 
 - `poetry install` and let it find all the requirements
 
@@ -38,12 +38,14 @@ Inheritance is a powerful feature that allows one set of data to inherit attribu
 
 - Local repo, use poetry [add](https://python-poetry.org/docs/cli/#add)
 
-  > poetry add ../sconfig
+  > poetry add ../irtree
 
 - Git dependencies, use poetry [add](https://python-poetry.org/docs/cli/#add)
 
-  > poetry add git+ssh://git@github.com:stephenp24/sconfig.git
+  > poetry add git+ssh://git@github.com:stephenp24/irtree.git
 
 ## Basic usage
 
-`sconfig` came with a `ConfigNode` class that should handle most of data inheritance cases, to use `ConfigNode` simply construct one.
+`irtree` came with a `ContextualNode` class that should handle most of data inheritance cases, to use `ContextualNode` simply construct one.
+
+For more example look at the test files :)

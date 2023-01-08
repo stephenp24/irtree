@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, List, Optional, cast
 from ._logger import get_logger
 
 if TYPE_CHECKING:
-    from .config import BaseNode
+    from .node import BaseNode
 
 _LOGGER = get_logger(__name__)
 

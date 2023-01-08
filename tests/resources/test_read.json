@@ -1,30 +1,30 @@
 {
-    "__kls_name__": "sconfig.config.ContextualNode",
+    "__kls_name__": "irtree.node.ContextualNode",
     "name": "a0",
     "weight": 0,
     "data_item": null,
     "children": [
         {
-            "__kls_name__": "sconfig.config.ContextualNode",
+            "__kls_name__": "irtree.node.ContextualNode",
             "name": "b1_0",
             "weight": 1,
             "data_item": null,
             "children": [
                 {
-                    "__kls_name__": "sconfig.config.ContextualNode",
+                    "__kls_name__": "irtree.node.ContextualNode",
                     "name": "c2_0",
                     "weight": 3,
                     "data_item": null,
                     "children": [
                         {
-                            "__kls_name__": "sconfig.config.ContextualNode",
+                            "__kls_name__": "irtree.node.ContextualNode",
                             "name": "d3_0",
                             "weight": 3,
                             "data_item": null,
                             "children": []
                         },
                         {
-                            "__kls_name__": "sconfig.config.ContextualNode",
+                            "__kls_name__": "irtree.node.ContextualNode",
                             "name": "d3_1",
                             "weight": 3,
                             "data_item": null,
@@ -35,48 +35,48 @@
             ]
         },
         {
-            "__kls_name__": "sconfig.config.ContextualNode",
+            "__kls_name__": "irtree.node.ContextualNode",
             "name": "b1_1",
             "weight": 1,
             "data_item": null,
             "children": [
                 {
-                    "__kls_name__": "sconfig.config.ContextualNode",
+                    "__kls_name__": "irtree.node.ContextualNode",
                     "name": "c2",
                     "weight": 2,
                     "data_item": null,
                     "children": [
                         {
-                            "__kls_name__": "sconfig.config.ContextualNode",
+                            "__kls_name__": "irtree.node.ContextualNode",
                             "name": "d3_0",
                             "weight": 3,
                             "data_item": null,
                             "children": []
                         },
                         {
-                            "__kls_name__": "sconfig.config.ContextualNode",
+                            "__kls_name__": "irtree.node.ContextualNode",
                             "name": "d3_1",
                             "weight": 3,
                             "data_item": null,
                             "children": [
                                 {
-                                    "__kls_name__": "sconfig.config.ContextualNode",
+                                    "__kls_name__": "irtree.node.ContextualNode",
                                     "name": "e4",
                                     "weight": 4,
                                     "data_item": {
-                                        "__kls_name__": "sconfig.config.BaseDataItem",
+                                        "__kls_name__": "irtree.node.BaseDataItem",
                                         "author": "snugroho",
                                         "total_weight": 10
                                     },
                                     "children": [
                                         {
-                                            "__kls_name__": "sconfig.config.ContextualNode",
+                                            "__kls_name__": "irtree.node.ContextualNode",
                                             "name": "f5",
                                             "weight": 5,
                                             "data_item": null,
                                             "children": [
                                                 {
-                                                    "__kls_name__": "sconfig.config.ContextualNode",
+                                                    "__kls_name__": "irtree.node.ContextualNode",
                                                     "name": "g6",
                                                     "weight": 6,
                                                     "data_item": null,

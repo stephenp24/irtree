@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Union, cast
 from six import string_types
 
 if TYPE_CHECKING:
-    from sconfig.config import BaseDataItem, BaseNode
+    from irtree.node import BaseDataItem, BaseNode
 
 
 # https://docs.python.org/3/whatsnew/3.6.html
@@ -88,7 +88,7 @@ class PathDescriptor(ReadOnlyValidator, StringDescriptor):
     """${parent.path}/${name}"""
 
     def __get__(self, obj: BaseNode, objtype=None) -> str:
-        from .config import _root
+        from .node import _root
 
         if obj:
             path = f"{obj.parent.path if not isinstance(obj.parent, _root) else ''}/{obj.name}"
@@ -130,7 +130,7 @@ class DataItemDescriptor(Validator):
         return super(DataItemDescriptor, self).__get__(obj, objtype)
 
     def validate(self, obj, value: BaseDataItem):
-        from .config import BaseDataItem
+        from .node import BaseDataItem
 
         if value is not None:
             if not isinstance(value, BaseDataItem):
@@ -168,7 +168,7 @@ class ParentDescriptor(Validator):
             value.add_child(obj)
 
     def validate(self, obj, value: BaseNode):
-        from .config import BaseNode, _root
+        from .node import BaseNode, _root
 
         if (value is not None) and (not isinstance(value, (BaseNode, _root))):
             raise TypeError(f"Expected {value!r} to be a ``BaseNode`` typed class")

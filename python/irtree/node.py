@@ -12,7 +12,7 @@ from enum import Enum, auto
 from itertools import groupby
 from typing import Deque, Dict, Generator, Iterable, List, Optional, cast
 
-from sconfig._descriptor import (
+from irtree._descriptor import (
     DataItemDescriptor,
     HasDataDescriptor,
     IntDescriptor,
@@ -21,9 +21,9 @@ from sconfig._descriptor import (
     StringDescriptor,
     TotalWeightDescriptor,
 )
-from sconfig._logger import get_logger
-from sconfig._utils import import_string, instance_validator
-from sconfig.query import Query, QueryItem, get_query_items_from_path
+from irtree._logger import get_logger
+from irtree._utils import import_string, instance_validator
+from irtree.query import Query, QueryItem, get_query_items_from_path
 
 _LOGGER = get_logger(__name__)
 
