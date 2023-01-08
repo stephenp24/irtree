@@ -141,6 +141,10 @@ at certain index should be rare enough.
 > Note that I'm not too concerned over the performance as much, if speed really ended up became the main 
   issue over the stability, I'd rather port this lib to its `C++` or `rust` with some python bindings. 
 
+> As per 2023/01/05 the current benchmark in creating 10^7 nodes took ~1m 6s and adding 10^7 child 
+  took ~4m 33s where ~1m spend mostly to iterate each item.
+  10^7 empty (no data-items) nodes took ~9.5Gb of memory, where most of the bulk 
+
 ## Implementation details
 
 ### Hashing

@@ -12,18 +12,18 @@ __all__ = [
 
 import weakref
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, cast
 
 from six import string_types
 
 if TYPE_CHECKING:
-    from sconfig.config import BaseDataItem, BaseNode, _root
+    from sconfig.config import BaseDataItem, BaseNode
 
 
 # https://docs.python.org/3/whatsnew/3.6.html
 # https://www.python.org/dev/peps/pep-0487/
 class Validator(ABC):
-    _DEFAULT = None
+    _DEFAULT = None  # type: Union[None, str, int, BaseNode]
 
     def __init__(self, default=None):
         if default is not None:
@@ -40,11 +40,11 @@ class Validator(ABC):
         return result
 
     def __set__(self, obj, value):
-        self.validate(value)
+        self.validate(obj, value)
         obj.__dict__[self._name] = value
 
     @abstractmethod
-    def validate(self, value):
+    def validate(self, obj, value):
         pass
 
 
@@ -66,7 +66,9 @@ class StringDescriptor(Validator):
     def __get__(self, obj, objtype=None) -> str:
         return super(StringDescriptor, self).__get__(obj, objtype)
 
-    def validate(self, value):
+    def validate(self, obj, value):
+        if not value:
+            raise TypeError(f"`{obj.__class__.__name__}` missing 1 required positional argument: 'name'")
         if (value is not None) and (not isinstance(value, string_types)):
             raise TypeError(f"Expected {value!r} to be a string")
 
@@ -77,7 +79,7 @@ class IntDescriptor(Validator):
     def __get__(self, obj, objtype=None) -> int:
         return super(IntDescriptor, self).__get__(obj, objtype)
 
-    def validate(self, value):
+    def validate(self, obj, value):
         if (value is not None) and (not isinstance(value, int)):
             raise TypeError(f"Expected {value!r} to be an int")
 
@@ -119,7 +121,7 @@ class HasDataDescriptor(ReadOnlyValidator):
 
         return super(HasDataDescriptor, self).__get__(obj, objtype)
 
-    def validate(self, value):
+    def validate(self, obj, value):
         pass
 
 
@@ -127,7 +129,7 @@ class DataItemDescriptor(Validator):
     def __get__(self, obj: BaseNode, objtype=None) -> BaseDataItem:
         return super(DataItemDescriptor, self).__get__(obj, objtype)
 
-    def validate(self, value: BaseDataItem):
+    def validate(self, obj, value: BaseDataItem):
         from .config import BaseDataItem
 
         if value is not None:
@@ -146,6 +148,7 @@ class ParentDescriptor(Validator):
     for each parent/ child node. When child references the parent so
     that on references reset, together with the root deletes all descendants
     cascading."""
+    _DEFAULT = None  # type: BaseNode
 
     def __get__(self, obj: BaseNode, objtype=None) -> BaseNode:
         """ """
@@ -158,13 +161,13 @@ class ParentDescriptor(Validator):
 
     def __set__(self, obj: BaseNode, value: BaseNode):
         """Set the obj parent ot point to the given node value"""
-        self.validate(value)
+        self.validate(obj, value)
         obj.__dict__[self._name] = value if value is None else weakref.ref(value)
         # Add this node to the parent's list of children
         if value:
             value.add_child(obj)
 
-    def validate(self, value: BaseNode):
+    def validate(self, obj, value: BaseNode):
         from .config import BaseNode, _root
 
         if (value is not None) and (not isinstance(value, (BaseNode, _root))):

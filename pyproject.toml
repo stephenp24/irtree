@@ -10,6 +10,7 @@ packages = [{include = "sconfig", from = "python"}]
 python = "^3.9"
 line-profiler = "^4.0.2"
 python-rapidjson = "^1.9"
+types-six = "^1.16.21.4"
 
 
 [tool.poetry.group.test.dependencies]

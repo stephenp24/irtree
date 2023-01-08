@@ -211,14 +211,14 @@ def test_add_child_sorted_complex():
     assert list(node.children) == expected_result
 
 
-def test_add_child_unsafe():
-    """test add child unsafe"""
+def test_add_child_unsorted():
+    """test add child unsorted"""
     # ARRANGE: dummy node to add the children
     node = ContextualNode("root")
     children = [ContextualNode("child") for _ in range(3)]
 
     # ACT: add the children bypassing the sorting
-    [node.add_child(child, safe=False) for child in children]
+    [node.add_child(child, sort=False) for child in children]
 
     # ASSERT: duplicates is allowed
     assert len(node.children) == len(children)
@@ -375,7 +375,7 @@ def test_render(node_with_data_items: ContextualNode):
 
 def test_get_data_items(node_with_data_items: ContextualNode):
     # ACT: iter data items without any query
-    data_items = node_with_data_items.iter_data_items()
+    data_items = node_with_data_items.iter_contributing_data_items()
 
     # ASSERT: iter without query should return all sorted data items from the graph
     expected_result = [
@@ -393,7 +393,7 @@ def test_get_data_items(node_with_data_items: ContextualNode):
     assert list(data_items) == expected_result
 
     # ACT: iter data items with continuous query
-    data_items = node_with_data_items.iter_data_items(
+    data_items = node_with_data_items.iter_contributing_data_items(
         query=Query.from_path("/a0/b1/c0")
     )
 
@@ -420,7 +420,7 @@ def test_get_resolved_data_item(node_with_data_items: ContextualNode):
         ]
     )
     # ACT: resolve data item
-    data_items = node_with_data_items.iter_data_items(query=query)
+    data_items = node_with_data_items.iter_contributing_data_items(query=query)
     data_item = get_resolved_data_item(data_items)
 
     # ASSERT: resulting data_item item is correct
@@ -436,7 +436,7 @@ def test_get_resolved_data_item(node_with_data_items: ContextualNode):
         ]
     )
     # ACT: resolve data item
-    data_items = node_with_data_items.iter_data_items(query=query)
+    data_items = node_with_data_items.iter_contributing_data_items(query=query)
     data_item = get_resolved_data_item(data_items)
 
     # ASSERT: resulting data_item item is correct
@@ -455,7 +455,7 @@ def test_query(node_with_data_items: ContextualNode):
             QueryItem(name="e2", weight=4),
         ]
     )
-    data_items = node_with_data_items.iter_data_items(query=query)
+    data_items = node_with_data_items.iter_contributing_data_items(query=query)
 
     # ASSERT: resulting items is correct
     expected_results = [
@@ -474,7 +474,7 @@ def test_query(node_with_data_items: ContextualNode):
             QueryItem(name="d0", weight=3),
         ]
     )
-    data_items = node_with_data_items.iter_data_items(query=query)
+    data_items = node_with_data_items.iter_contributing_data_items(query=query)
 
     # ASSERT: resulting items is correct
     expected_results = [
@@ -491,7 +491,7 @@ def test_query_from_path(node_with_data_items: ContextualNode):
     """test basic query from path constructor"""
     # ACT: initialize query from path
     query = Query.from_path("/a0/b1")
-    data_items = node_with_data_items.iter_data_items(query=query)
+    data_items = node_with_data_items.iter_contributing_data_items(query=query)
 
     # ASSERT: resulting items is correct
     expected_results = [
@@ -506,7 +506,7 @@ def test_regex_query_from_path(node_with_data_items: ContextualNode):
     """test regex query from path constructor"""
     # ACT: initialize regex query from path
     query = ReQuery.from_path("/a(\\d{1})$/b(\\d{1})$/c0")
-    data_items = node_with_data_items.iter_data_items(query=query)
+    data_items = node_with_data_items.iter_contributing_data_items(query=query)
 
     # ASSERT: resulting items is correct
     expected_data_items = [
