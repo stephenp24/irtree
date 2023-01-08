@@ -3,7 +3,7 @@ __all__ = ["get_logger"]
 import logging
 
 
-def get_logger(name):
+def get_logger(name, level=logging.DEBUG):
     logger = logging.getLogger(name)
 
     if not logger.handlers:
@@ -22,6 +22,6 @@ def get_logger(name):
         # Add handlers to the logger
         logger.addHandler(c_handler)
         logger.addHandler(f_handler)
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(level or logging.DEBUG)
 
     return logger

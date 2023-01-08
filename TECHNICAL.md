@@ -125,6 +125,7 @@ above should suffice assuming users would want some search customisation
 - Node might have same `name` as long as the final `path` is different.
 - `child's weight` is always higher than `parent`.
 - Node may/ may not contain `data_item` (including `root` and `leaves`).
+- No diamond iheritance, child might have the same name but they are a unique node.
 
 ### Data Item
 
