@@ -1,6 +1,6 @@
 # irtree
 
-Welcome to `irtree`, a library for easily resolving complex data inheritance written in Python.
+Welcome to `irtree`, a library for easily resolving complex data inheritance of an arbitrary depth written in Python.
 
 ## Introduction
 
@@ -10,8 +10,8 @@ Inheritance is a powerful feature that allows one set of data to inherit attribu
 
 - Provides a simple and intuitive API for resolving inherited data
 - Handles multiple inheritance (both `direct` and `non-direct`) scenarios
-- Allows customization of the `resolving`
-- Allows customization of the `data item` 
+- Allows customization of the `resolving` logic
+- Allows customization of the `data item` and `node` container 
 - Extensively tested to ensure correctness and reliability
 
 ## Installation
