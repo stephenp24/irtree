@@ -374,6 +374,7 @@ def test_render(node_with_data_items: ContextualNode):
 
 
 def test_get_data_items(node_with_data_items: ContextualNode):
+    """test get data items on linear depth from various branch"""
     # ACT: iter data items without any query
     data_items = node_with_data_items.iter_contributing_data_items()
 
@@ -404,8 +405,41 @@ def test_get_data_items(node_with_data_items: ContextualNode):
         BaseDataItem(total_weight=2, author="/a0/c0 (True)"),
         BaseDataItem(total_weight=3, author="/a0/b1/c0 (True)"),
     ]
-
     assert list(data_items) == expected_result
+
+
+def test_get_data_items_complex():
+    """test get data items on an arbitrary depth"""
+    # ARRANGE: create test node
+    with ContextualNode("film", weight=0) as film:
+        film.data_item = BaseDataItem(total_weight=film.total_weight, author="/film (True)")
+        lod = film.add_child(ContextualNode("lod", weight=9))
+        lod.data_item = BaseDataItem(total_weight=lod.total_weight, author="/film/lod (True)")
+        with film.add_child(ContextualNode("asset", weight=5)) as asset:
+            asset.data_item = BaseDataItem(total_weight=asset.total_weight, author="/film/asset (True)")
+            variant = asset.add_child(ContextualNode("variant", weight=6))
+            variant.data_item = BaseDataItem(total_weight=variant.total_weight, author="/film/asset/variant (True)")
+        # not contributing
+        film.add_child(ContextualNode("unused", weight=8))
+
+    # ACT: iter data items with arbitrary depth query
+    data_items = film.iter_contributing_data_items(
+        query=Query([
+            QueryItem(name="film", weight=0),
+            QueryItem(name="asset", weight=5),  
+            QueryItem(name="variant", weight=6),  
+            QueryItem(name="lod", weight=9), 
+        ])
+    )
+
+    # ASSERT: iter with arbitrary depth should return all sorted items from matching node
+    expected_result = [
+        BaseDataItem(total_weight=0, author="/film (True)"), 
+        BaseDataItem(total_weight=5, author="/film/asset (True)"), 
+        BaseDataItem(total_weight=11, author="/film/asset/variant (True)"), 
+        BaseDataItem(total_weight=9, author="/film/lod (True)"), 
+    ]
+    assert list(data_items) == list(film.iter_contributing_data_items()) == expected_result
 
 
 def test_get_resolved_data_item(node_with_data_items: ContextualNode):

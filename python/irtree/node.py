@@ -501,7 +501,8 @@ class BaseNode:
             child = children.popleft()
             result += child.get_contributing_nodes(query=query)
 
-        return sorted(result, key=lambda item: item.total_weight)
+        result = sorted(result, key=lambda node: node.total_weight)
+        return sorted(result, key=lambda node: node.weight)
 
     def iter_contributing_data_items(
         self, query: Optional[Query] = None
@@ -515,6 +516,7 @@ class BaseNode:
             nodes = self.get_contributing_nodes(query=query)
         else:
             nodes = sorted(self.iter(), key=lambda node: node.total_weight)
+            nodes = sorted(nodes, key=lambda node: node.weight)
 
         for node in nodes:
             if node.has_data:
