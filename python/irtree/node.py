@@ -94,11 +94,9 @@ def to_json(node: BaseNode):
         if isinstance(obj, deque):
             return tuple(obj)
         elif isinstance(obj, BaseNode):
+            ignored_list = ("parent", "path", "has_data", "total_weight")
             d = {__KLS_NAME__: fullname(obj)}
-            d.update(deepcopy(vars(obj)))
-            for k in ("parent", "path", "has_data", "total_weight"):
-                if k in d:
-                    del d[k]
+            d.update({k: deepcopy(v) for k, v in vars(obj).items() if k not in ignored_list})
             if "children" in d:
                 d["children"] = tuple(obj.children)
             return d
@@ -337,12 +335,12 @@ _root = make_dataclass(
         ("path", str, "/"),
         ("weight", int, field(default=0, repr=False)),
         ("total_weight", int, field(default=0, repr=False)),
-        ("children", Children, field(default_factory=Children, init=False)),
+        ("children", list, field(default_factory=list, init=False)),
     ],
     frozen=True,
     namespace={
-        "add_child": lambda self, child: self.children.add(child),
-        "flush": lambda self: self.children.flush(),
+        "add_child": lambda self, child: self.children.append(child),
+        "flush": lambda self: self.children.clear(),
     },
 )
 ROOT = _root()
@@ -409,7 +407,7 @@ class BaseNode:
     def top_node(self) -> BaseNode:
         """(read-only) Get the root node of this node"""
         node = self
-        while node.parent != ROOT:
+        while node.parent and node.parent != ROOT:
             node = node.parent.top_node
 
         return node
